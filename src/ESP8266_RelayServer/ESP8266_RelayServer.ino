@@ -9,11 +9,11 @@ MDNSResponder mdns;
 ESP8266WebServer server(80);
 
 int myPins[] = {0,2,4,5,12,13,14,15,16};
-int myPin;
+const char* pathOn[] = {"/r0on", "/r1on", "/r2on", "/r3on", "/r4on", "/r5on", "/r6on", "/r7on", "/r8on" };
+const char* pathOff[] = {"/r0off", "/r1off", "/r2off", "/r3off", "/r4off", "/r5off", "/r6off", "/r7off", "/r8off" };
+
 int i;
 String sPin;
-String sUrl;
-const char cUrl;
 
 void handleRoot() {
   server.send(200, "text/plain", "hello from esp8266!");
@@ -66,23 +66,21 @@ void setup(void){
   server.on("/", handleRoot);
 
   for (i = 0; i < 9; i = i + 1) {
-    myPin = myPins[i];
     sPin = String(i);
+    Serial.println(sPin);
+    Serial.println(myPins[i]);
+    Serial.println(pathOn[i]);
+    Serial.println(pathOff[i]);
+    Serial.println("\n");
     
-    sUrl = "/relay" + sPin + "On";
-    cUrl = sUrl.c_str();
-    
-    server.on(&cUrl, [](){
+    server.on(pathOn[i], [](){
       server.send(200, "text/plain", "Relay " + sPin + " is on");
-      digitalWrite(myPin, 0);
+      digitalWrite(myPins[i], 0);
     });
 
-    sUrl = "/relay" + sPin + "Off";
-    cUrl = sUrl.c_str();
-    
-    server.on(&cUrl, [](){
+    server.on(pathOff[i], [](){
       server.send(200, "text/plain", "Relay " + sPin + " is off");
-      digitalWrite(myPin, 1);
+      digitalWrite(myPins[i], 1);
     });
   }
 

@@ -1,3 +1,7 @@
 [submodule "libs/Adafruit_Python_CharLCD"]
 	path = libs/Adafruit_Python_CharLCD
 	url = https://github.com/adafruit/Adafruit_Python_CharLCD
+
+[submodule "libs/Adafruit_Python_DHT"]
+	path = libs/Adafruit_Python_DHT
+	url = https://github.com/adafruit/Adafruit_Python_DHT

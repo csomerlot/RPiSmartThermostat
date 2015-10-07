@@ -3,7 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "linksys";
+const char* ssid = "raspberry";
 const char* password = "somerlotsomerlot";
 MDNSResponder mdns;
 ESP8266WebServer server(80);

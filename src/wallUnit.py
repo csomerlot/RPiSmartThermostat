@@ -28,7 +28,7 @@ def main():
     
     messages = ['RPi Thermostat']
     messages.append(getTime())
-    messages.append("IP %s" % getIp())
+    messages.append("IP address\n%s" % getIp())
     mindx = 1
     lcd.message(messages[mindx])
     

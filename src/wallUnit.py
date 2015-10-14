@@ -44,7 +44,7 @@ def main():
                 
         if lcd.is_pressed(LCD.UP):
             mindx -= 1
-            if mindx == 0:
+            if mindx < 0:
                 mindx = len(messages)-1
 
             lcd.clear()
@@ -52,7 +52,7 @@ def main():
             
         if lcd.is_pressed(LCD.DOWN):
             mindx += 1
-            if mindx == len(messages)-1:
+            if mindx > len(messages)-1:
                 mindx = 0
 
             lcd.clear()

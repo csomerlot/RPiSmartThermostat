@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, time, urllib, datetime
+import sys, time, urllib, datetime, socket
 
 import Adafruit_CharLCD as LCD
 

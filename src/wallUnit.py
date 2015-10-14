@@ -74,4 +74,7 @@ if __name__ == '__main__':
     ## check for relay module
 
     ## get local weather
+
+    main()
+    
     

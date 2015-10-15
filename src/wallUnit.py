@@ -11,8 +11,9 @@ basepath = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(basepath, '..\libs\Adafruit_Python_CharLCD'))
 import Adafruit_CharLCD as LCD
 
-sys.path.append(os.path.join(basepath, '..\libs\requests'))
-sys.path.append(os.path.join(basepath, '..\libs\python-forecast.io'))
+print os.path.join(basepath, r'..\libs\requests')
+sys.path.append(os.path.join(basepath, r'..\libs\requests'))
+sys.path.append(os.path.join(basepath, r'..\libs\python-forecast.io'))
 import requests
 from requests.packages import urllib3
 urllib3.disable_warnings()

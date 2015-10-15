@@ -66,9 +66,9 @@ def main():
 
 def setMessage(idx, lcd):
     lcd.clear()
-    elif idx == 1: lcd.message(getTime())
+    if   idx == 1: lcd.message(getTime())
     elif idx == 2: lcd.message("IP address\n%s" % (getIp()))
-    elif idx == 2: lcd.message("Outside temp\n%s" % (getOutdoor()[u'temperature']))
+    elif idx == 3: lcd.message("Outside temp\n%s" % (getOutdoor()[u'temperature']))
     else: lcd.message('RPi Thermostat')
     
 def getIp():

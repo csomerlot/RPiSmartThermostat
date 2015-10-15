@@ -1,17 +1,18 @@
 #!/usr/bin/python
 
-import sys, time, urllib, datetime, socket
+import sys, os, time, urllib, datetime, socket
+basepath = os.path.dirname(os.path.abspath(__file__))
 
 ##sys.path.append(r'..\libs\Adafruit_Python_DHT')
 ##import Adafruit_DHT
 ##sensor = Adafruit_DHT.DHT22
 ##pin = 4
 
-##sys.path.append(r'..\libs\Adafruit_Python_CharLCD')
-##import Adafruit_CharLCD as LCD
+sys.path.append(os.path.join(basepath, '..\libs\Adafruit_Python_CharLCD')
+import Adafruit_CharLCD as LCD
 
-sys.path.append(r'..\libs\requests')
-sys.path.append(r'..\libs\python-forecast.io')
+sys.path.append(os.path.join(basepath, '..\libs\requests'))
+sys.path.append(os.path.join(basepath, '..\libs\python-forecast.io'))
 import requests
 from requests.packages import urllib3
 urllib3.disable_warnings()

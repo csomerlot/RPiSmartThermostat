@@ -8,7 +8,7 @@ basepath = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 ##sensor = Adafruit_DHT.DHT22
 ##pin = 4
 
-sys.path.append(basepath + '/libs/Adafruit_Python_CharLCD'))
+sys.path.append(basepath + '/libs/Adafruit_Python_CharLCD')
 import Adafruit_CharLCD as LCD
 
 sys.path.append(basepath + '/libs/requests')

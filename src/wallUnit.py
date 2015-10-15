@@ -57,13 +57,13 @@ def main():
             mindx -= 1
             if mindx < 0:
                 mindx = 3
-            setMessage(mindx)
+            setMessage(mindx, lcd)
             
         if lcd.is_pressed(LCD.DOWN):
             mindx += 1
             if mindx > 3:
                 mindx = 0
-            setMessage(mindx)
+            setMessage(mindx, lcd)
 
 def setMessage(idx, lcd):
     lcd.clear()

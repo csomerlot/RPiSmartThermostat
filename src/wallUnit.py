@@ -25,12 +25,8 @@ def getTemp():
 def main():
     lcd = LCD.Adafruit_CharLCDPlate()
     lcd.set_color(1,1,1)
-    
-    messages = ['RPi Thermostat']
-    messages.append(getTime())
-    messages.append("IP address\n%s" % getIp())
     mindx = 1
-    lcd.message(messages[mindx])
+    setMessage(0, lcd)
     
     while True:
         
@@ -46,26 +42,34 @@ def main():
             mindx -= 1
             if mindx < 0:
                 mindx = len(messages)-1
-
-            lcd.clear()
-            lcd.message(messages[mindx])
+            setMessage(mindx)
             
         if lcd.is_pressed(LCD.DOWN):
             mindx += 1
             if mindx > len(messages)-1:
                 mindx = 0
+            setMessage(mindx)
 
-            lcd.clear()
-            lcd.message(messages[mindx])
-
+def setMessage(idx, lcd):
+    lcd.clear()
+    elif idx == 1: lcd.message(getTime())
+    elif idx == 2: lcd.message("IP address\n%s" % getIp())
+    else: lcd.message('RPi Thermostat')
+    
 def getIp():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8",80))
-    return s.getsockname()[0]
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8",80))
+        return s.getsockname()[0]
+    except:
+        return "unknown"
 
 def getTime():
-    d = datetime.datetime.now()
-    return d.strftime("%m/%d %I:%M")
+    try:
+        d = datetime.datetime.now()
+        return d.strftime("%m/%d %I:%M")
+    except:
+        return "error with date"
 
 if __name__ == '__main__':
     

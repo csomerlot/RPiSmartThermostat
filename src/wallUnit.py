@@ -55,19 +55,20 @@ def main():
         if lcd.is_pressed(LCD.UP):
             mindx -= 1
             if mindx < 0:
-                mindx = len(messages)-1
+                mindx = 3
             setMessage(mindx)
             
         if lcd.is_pressed(LCD.DOWN):
             mindx += 1
-            if mindx > len(messages)-1:
+            if mindx > 3:
                 mindx = 0
             setMessage(mindx)
 
 def setMessage(idx, lcd):
     lcd.clear()
     elif idx == 1: lcd.message(getTime())
-    elif idx == 2: lcd.message("IP address\n%s" % getIp())
+    elif idx == 2: lcd.message("IP address\n%s" % (getIp()))
+    elif idx == 2: lcd.message("Outside temp\n%s" % (getOutdoor()[u'temperature']))
     else: lcd.message('RPi Thermostat')
     
 def getIp():
@@ -90,10 +91,7 @@ if __name__ == '__main__':
 ##     check internet connection
 ##
 ##     check for relay module
-##
-##     get local weather
-    print getOutdoorTemp()
 
-##    main()
+    main()
     
     

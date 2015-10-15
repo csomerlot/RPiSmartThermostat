@@ -2,14 +2,21 @@
 
 import sys, time, urllib, datetime, socket
 
-import Adafruit_CharLCD as LCD
-
 ##sys.path.append(r'..\libs\Adafruit_Python_DHT')
-##sys.path.append(r'..\libs\Adafruit_Python_CharLCD')
-##
 ##import Adafruit_DHT
 ##sensor = Adafruit_DHT.DHT22
 ##pin = 4
+
+##sys.path.append(r'..\libs\Adafruit_Python_CharLCD')
+##import Adafruit_CharLCD as LCD
+
+sys.path.append(r'..\libs\requests')
+sys.path.append(r'..\libs\python-forecast.io')
+import requests
+from requests.packages import urllib3
+urllib3.disable_warnings()
+import forecastio
+
 
 ##from pymongo import MongoClient
 ##mongo_client = MongoClient()
@@ -17,20 +24,23 @@ import Adafruit_CharLCD as LCD
 def getTarget():
     return 68
 
-def getTemp():
+def getIndoor():
 ##    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 ##    temperature = temperature * 9/5.0 + 32
     return 62
 
+def getOutdoor():
+    api_key = "e7c48fe5a0555a4792c51c1c6df2064c"
+    lat, lng = 42.8543818,-76.1192197
+    forecast = forecastio.load_forecast(api_key, lat, lng)
+    data = forecast.currently().d
+    return data
+
 def main():
     lcd = LCD.Adafruit_CharLCDPlate()
     lcd.set_color(1,1,1)
-    
-    messages = ['RPi Thermostat']
-    messages.append(getTime())
-    messages.append("IP address\n%s" % getIp())
     mindx = 1
-    lcd.message(messages[mindx])
+    setMessage(0, lcd)
     
     while True:
         
@@ -45,35 +55,42 @@ def main():
         if lcd.is_pressed(LCD.UP):
             mindx -= 1
             if mindx < 0:
-                mindx = len(messages)-1
-
-            lcd.clear()
-            lcd.message(messages[mindx])
+                mindx = 3
+            setMessage(mindx)
             
         if lcd.is_pressed(LCD.DOWN):
             mindx += 1
-            if mindx > len(messages)-1:
+            if mindx > 3:
                 mindx = 0
+            setMessage(mindx)
 
-            lcd.clear()
-            lcd.message(messages[mindx])
-
+def setMessage(idx, lcd):
+    lcd.clear()
+    elif idx == 1: lcd.message(getTime())
+    elif idx == 2: lcd.message("IP address\n%s" % (getIp()))
+    elif idx == 2: lcd.message("Outside temp\n%s" % (getOutdoor()[u'temperature']))
+    else: lcd.message('RPi Thermostat')
+    
 def getIp():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8",80))
-    return s.getsockname()[0]
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8",80))
+        return s.getsockname()[0]
+    except:
+        return "unknown"
 
 def getTime():
-    d = datetime.datetime.now()
-    return d.strftime("%m/%d %I:%M")
+    try:
+        d = datetime.datetime.now()
+        return d.strftime("%m/%d %I:%M")
+    except:
+        return "error with date"
 
 if __name__ == '__main__':
     
-    ## check internet connection
-    
-    ## check for relay module
-
-    ## get local weather
+##     check internet connection
+##
+##     check for relay module
 
     main()
     

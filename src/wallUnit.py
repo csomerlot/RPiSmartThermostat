@@ -69,8 +69,10 @@ def setMessage(idx, lcd):
     lcd.clear()
     if   idx == 1: lcd.message(getTime())
     elif idx == 2: lcd.message("IP address\n%s" % (getIp()))
-    elif idx == 3: lcd.message("Outside temp\n%s" % (getOutdoor()[u'temperature']))
-    else: lcd.message('RPi Thermostat')
+    elif idx == 3:
+        lcd.message("Outside temp")
+        lcd.message("Outside temp\n%s" % (getOutdoor()[u'temperature']))
+    else: lcd.message('Welcome to\nRPi Thermostat')
     
 def getIp():
     try:
@@ -83,7 +85,7 @@ def getIp():
 def getTime():
     try:
         d = datetime.datetime.now()
-        return d.strftime("%m/%d %I:%M")
+        return d.strftime("%m/%d %I:%M %p\n%A")
     except:
         return "error with date"
 
@@ -94,5 +96,6 @@ if __name__ == '__main__':
 ##     check for relay module
 
     main()
+
     
     

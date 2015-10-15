@@ -2,14 +2,21 @@
 
 import sys, time, urllib, datetime, socket
 
-import Adafruit_CharLCD as LCD
-
 ##sys.path.append(r'..\libs\Adafruit_Python_DHT')
-##sys.path.append(r'..\libs\Adafruit_Python_CharLCD')
-##
 ##import Adafruit_DHT
 ##sensor = Adafruit_DHT.DHT22
 ##pin = 4
+
+##sys.path.append(r'..\libs\Adafruit_Python_CharLCD')
+##import Adafruit_CharLCD as LCD
+
+sys.path.append(r'..\libs\requests')
+sys.path.append(r'..\libs\python-forecast.io')
+import requests
+from requests.packages import urllib3
+urllib3.disable_warnings()
+import forecastio
+
 
 ##from pymongo import MongoClient
 ##mongo_client = MongoClient()
@@ -17,10 +24,17 @@ import Adafruit_CharLCD as LCD
 def getTarget():
     return 68
 
-def getTemp():
+def getIndoor():
 ##    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 ##    temperature = temperature * 9/5.0 + 32
     return 62
+
+def getOutdoor():
+    api_key = "e7c48fe5a0555a4792c51c1c6df2064c"
+    lat, lng = 42.8543818,-76.1192197
+    forecast = forecastio.load_forecast(api_key, lat, lng)
+    data = forecast.currently().d
+    return data
 
 def main():
     lcd = LCD.Adafruit_CharLCDPlate()
@@ -73,12 +87,13 @@ def getTime():
 
 if __name__ == '__main__':
     
-    ## check internet connection
-    
-    ## check for relay module
+##     check internet connection
+##
+##     check for relay module
+##
+##     get local weather
+    print getOutdoorTemp()
 
-    ## get local weather
-
-    main()
+##    main()
     
     

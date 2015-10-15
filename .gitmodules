@@ -5,3 +5,9 @@
 [submodule "libs/Adafruit_Python_DHT"]
 	path = libs/Adafruit_Python_DHT
 	url = https://github.com/adafruit/Adafruit_Python_DHT
+[submodule "libs/python-forecast.io"]
+	path = libs/python-forecast.io
+	url = https://github.com/ZeevG/python-forecast.io
+[submodule "libs/requests"]
+	path = libs/requests
+	url = https://github.com/kennethreitz/requests

@@ -95,7 +95,7 @@ def callRelay(idx, On):
     
 def main():
     scheduler = sched.scheduler(time.time, time.sleep)
-    nextEventTime = tempControl.getNextEventTime()
+    nextEventTime = time.mktime(tempControl.getNextEventTime())
     nextEvent = scheduler.enterabs(nextEventTime, 1, setFurnace, None)
     # Start a thread to run the events
     t = threading.Thread(target=scheduler.run)
@@ -104,7 +104,7 @@ def main():
     lcd = LCD.Adafruit_CharLCDPlate()
     lcd.set_color(1,1,1)
     topUIidx = 1
-    setMessage(0, lcd)
+    setTopMessage(0, lcd)
     
     while True:
         

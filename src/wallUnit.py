@@ -62,6 +62,10 @@ def setTopMessage(idx, lcd):
         temp = int(round(getOutdoor()[u'temperature'], 0))
         lcd.clear()
         lcd.message("Outside temp\n%i deg F" % temp)
+	elif idx == 4:
+	    temp = getIndoor()
+		target = tempControl.getTarget()
+	    lcd.message("Inside temp\n%i deg F\nSet to    %i def F" % (temp, target))
     else: lcd.message('Welcome to\nRPi Thermostat')
     
 def setFurnace():
@@ -110,15 +114,28 @@ def main():
         if lcd.is_pressed(LCD.LEFT):
             topUIidx -= 1
             if topUIidx < 0:
-                topUIidx = 3
+                topUIidx = 4
             setTopMessage(topUIidx, lcd)
             
         if lcd.is_pressed(LCD.RIGHT):
             topUIidx += 1
-            if topUIidx > 3:
+            if topUIidx > 4:
                 topUIidx = 0
             setTopMessage(topUIidx, lcd)
-
+			
+		if lcd.is_pressed(LCD.UP):
+            if topUIidx ==4:
+			    tempControl.offset += 1
+				
+			    setTopMessage(topUIidx, lcd)
+			    setFurnace()
+            
+        if lcd.is_pressed(LCD.DOWN):
+		    if topUIidx ==4:
+			    tempControl.offset -= 1
+				
+			    setTopMessage(topUIidx, lcd)
+			    setFurnace()
 
 if __name__ == '__main__':
     

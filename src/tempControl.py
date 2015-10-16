@@ -35,17 +35,16 @@ def getTarget():
 
 def getNextEventTime():
     now = datetime.now()
-    dayOfWeek = getDayOfWeek()
+    dayOfWeek = getDayOfWeek(now)
 
-    if now.hour > max(schedule[dayOfWeek]):
+    if now.hour >= max(schedule[dayOfWeek]):
         ## go to next day
         newDate = now.date() + timedelta(1)
-        dayOfWeek = getDayOfWeek(newDate)
+        dayOfWeek = getDayOfWeek(datetime.combine(newDate, time(0)))
         nextTime  = time(min(schedule[dayOfWeek]))
         nextEvent = datetime.combine(newDate, nextTime)
     
     else:
-        dayOfWeek = getDayOfWeek(now)
         times = sorted(schedule[dayOfWeek])
         times.reverse()
 
@@ -54,7 +53,7 @@ def getNextEventTime():
             
         nextEvent = datetime.combine(now.date(), nextTime)
 
-    return time.mktime(nextEvent.timetuple())
+    return nextEvent.timetuple()
     
 
 if __name__ == '__main__':

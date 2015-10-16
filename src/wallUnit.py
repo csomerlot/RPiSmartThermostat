@@ -76,7 +76,7 @@ def setFurnace():
     else:
         On = False
         
-    callRelay(None, On)
+    callRelay(3, On)
 
 def setFan():
     pass

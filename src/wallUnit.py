@@ -31,12 +31,15 @@ def getIndoor():
 ##    temperature = temperature * 9/5.0 + 32
     return 62
 
-def getOutdoor():
+def getOutdoor(lcd):
     api_key = "e7c48fe5a0555a4792c51c1c6df2064c"
     lat, lng = 42.8543818,-76.1192197
     forecast = forecastio.load_forecast(api_key, lat, lng)
     data = forecast.currently().d
-    return data
+	temp = int(round(d[u'temperature'], 0))
+	lcd.clear()
+    lcd.message("Outside temp\n%i deg F" % temp)
+    # return data
 
 def getIp():
     try:
@@ -54,14 +57,14 @@ def getTime():
         return "error with date"
 
 def setTopMessage(idx, lcd):
-    lcd.clear()
+	lcd.clear()
     if   idx == 1: lcd.message(getTime())
     elif idx == 2: lcd.message("IP address\n%s" % (getIp()))
     elif idx == 3:
         lcd.message("Outside temp\n...")
-        temp = int(round(getOutdoor()[u'temperature'], 0))
-        lcd.clear()
-        lcd.message("Outside temp\n%i deg F" % temp)
+        temp = []
+		t = threading.Thread(target=getOutdoor, (temp,))
+		t.start()
     elif idx == 4:
         temp = getIndoor()
         target = tempControl.getTarget()
@@ -88,7 +91,7 @@ def setPatioMelter():
     pass
 
 def callRelay(idx, On):
-    url = r'http://192.168.42.130/relay%i%s' % (idx, {True:'On', False:"Off"}[On])
+    url = r'http://192.168.42.44/relay%i%s' % (idx, {True:'On', False:"Off"}[On])
     log(url)
     result = urllib.urlopen(url).read()
     log(result)

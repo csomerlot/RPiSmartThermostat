@@ -20,6 +20,7 @@ import forecastio
 
 import tempControl
 
+threads = []
 ##from pymongo import MongoClient
 ##mongo_client = MongoClient()
 def log(message):
@@ -36,8 +37,8 @@ def getOutdoor(lcd):
     lat, lng = 42.8543818,-76.1192197
     forecast = forecastio.load_forecast(api_key, lat, lng)
     data = forecast.currently().d
-	temp = int(round(d[u'temperature'], 0))
-	lcd.clear()
+    temp = int(round(data[u'temperature'], 0))
+    lcd.clear()
     lcd.message("Outside temp\n%i deg F" % temp)
     # return data
 
@@ -57,14 +58,14 @@ def getTime():
         return "error with date"
 
 def setTopMessage(idx, lcd):
-	lcd.clear()
+    lcd.clear()
     if   idx == 1: lcd.message(getTime())
     elif idx == 2: lcd.message("IP address\n%s" % (getIp()))
     elif idx == 3:
         lcd.message("Outside temp\n...")
-        temp = []
-		t = threading.Thread(target=getOutdoor, (temp,))
-		t.start()
+        t = threading.Thread(name="outsideTemp", target=getOutdoor, args=(lcd,))
+        threads.append(t)	
+        t.start()
     elif idx == 4:
         temp = getIndoor()
         target = tempControl.getTarget()
@@ -131,14 +132,18 @@ def main():
 			    tempControl.offset += 1
 				
 			    setTopMessage(topUIidx, lcd)
-			    setFurnace()
+                            t = threading.Thread(name="furnaceUp", target=setFurnace)
+                            threads.append(t)
+                            t.start()
             
         if lcd.is_pressed(LCD.DOWN):
 		    if topUIidx ==4:
 			    tempControl.offset -= 1
 				
 			    setTopMessage(topUIidx, lcd)
-			    setFurnace()
+                            t = threading.Thread(name="furnaceDown", target=setFurnace)
+                            threads.append(t)
+                            t.start()
 
 if __name__ == '__main__':
     

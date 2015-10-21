@@ -108,6 +108,13 @@ def callRelay(idx, On):
     log(url)
     result = urllib.urlopen(url).read()
     log(result)
+
+def restart():
+    command = "/usr/bin/sudo /sbin/shutdown -r now"
+    import subprocess
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = process.communicate()[0]
+    log( output )
     
 def main():
     scheduler = sched.scheduler(time.time, time.sleep)
@@ -174,7 +181,9 @@ def main():
 
         if lcd.is_pressed(LCD.SELECT):
             if topUIidx == 2 and secUIidx == 1:
-                os.command("sudo reboot")
+                lcd.clear()
+                lcd.message("\nrebooting...")
+                restart()
 
 if __name__ == '__main__':
     

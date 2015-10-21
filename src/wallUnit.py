@@ -60,23 +60,24 @@ def getTime():
 def setTopMessage(idx, lcd):
     lcd.clear()
     if   idx == 1: lcd.message(getTime())
-    elif idx == 2: lcd.message('Welcome to\nRPi Thermostat')
+    elif idx == 4: lcd.message('Welcome to\nRPi Thermostat')
     elif idx == 3:
         lcd.message("Outside temp\n...")
         t = threading.Thread(name="outsideTemp", target=getOutdoor, args=(lcd,))
         threads.append(t)	
         t.start()
-    elif idx == 4:
+    elif idx == 2:
         temp = getIndoor()
         target = tempControl.getTarget()
         lcd.message("Inside temp: %iF\nSet to:      %iF" % (temp, target))
 
-    else: lcd.message('Menu Error\ntop level choice=%i' % idx)
+    else: lcd.message('Top menu level\nerror: choice=%i' % idx)
 
 def setDiagMessage(idx, lcd):
-    if    idx == 0:
+    lcd.clear()
+    if   idx == 0:
         lcd.message("IP address\n%s" % (getIp()))
-    elif: idx == 1:
+    elif idx == 1:
         lcd.message("Press select\nto reboot")
 
     else:
@@ -120,7 +121,7 @@ def main():
     lcd.set_color(1,1,1)
     topUIidx = 1
     secUIidx = 0
-    setTopMessage(0, lcd)
+    setTopMessage(1, lcd)
     
     while True:
         
@@ -130,7 +131,7 @@ def main():
         if lcd.is_pressed(LCD.LEFT):
             secUIidx = 0
             topUIidx -= 1
-            if topUIidx < 0:
+            if topUIidx < 1:
                 topUIidx = 4
             setTopMessage(topUIidx, lcd)
             
@@ -138,18 +139,18 @@ def main():
             secUIidx = 0
             topUIidx += 1
             if topUIidx > 4:
-                topUIidx = 0
+                topUIidx = 1
             setTopMessage(topUIidx, lcd)
 			
         if lcd.is_pressed(LCD.UP):
-            if topUIidx ==4:
+            if topUIidx ==2:
                 tempControl.offset += 1
                     
                 setTopMessage(topUIidx, lcd)
                 t = threading.Thread(name="furnaceUp", target=setFurnace)
                 threads.append(t)
                 t.start()
-            if topUIidx == 2:
+            if topUIidx == 4:
                 secUIidx += 1
                 if secUIidx > 1:
                     secUIidx = 0
@@ -157,7 +158,7 @@ def main():
                 
             
         if lcd.is_pressed(LCD.DOWN):
-            if topUIidx ==4:
+            if topUIidx ==2:
                 tempControl.offset -= 1
                     
                 setTopMessage(topUIidx, lcd)
@@ -165,7 +166,7 @@ def main():
                 threads.append(t)
                 t.start()
                 
-            if topUIidx == 2:
+            if topUIidx == 4:
                 secUIidx -= 1
                 if secUIidx < 0:
                     secUIidx = 1

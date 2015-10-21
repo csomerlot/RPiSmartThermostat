@@ -20,6 +20,17 @@ import forecastio
 
 import tempControl
 
+UI = [
+    "time",
+    {"indoor temp": ['offset up', 'offset down']},
+    "outdoor temp",
+    {"diagnostics": ['IP', 'reboot']},
+    {"fan": ['on', 'off']},
+    {"patio melter": ['on', 'off']},
+    {"outside light": ['on', 'off']},
+    {"garden hose": ['on', 'off']}
+]
+
 threads = []
 ##from pymongo import MongoClient
 ##mongo_client = MongoClient()
@@ -39,8 +50,7 @@ def getOutdoor(lcd):
     data = forecast.currently().d
     temp = int(round(data[u'temperature'], 0))
     lcd.clear()
-    lcd.message("Outside temp\n%i deg F" % temp)
-    # return data
+    lcd.message("Outside temp\n%i deg F" % temp)    # return data
 
 def getIp():
     try:
@@ -57,20 +67,31 @@ def getTime():
     except:
         return "error with date"
 
-def setTopMessage(idx, lcd):
+def setTopMessage(idx, lcd, on=True):
     lcd.clear()
     if   idx == 1: lcd.message(getTime())
-    elif idx == 4: lcd.message('Welcome to\nRPi Thermostat')
+    elif idx == 2:
+        temp = getIndoor()
+        target = tempControl.getTarget()
+        lcd.message("Inside temp: %iF\nSet to:      %iF" % (temp, target))
     elif idx == 3:
         lcd.message("Outside temp\n...")
         t = threading.Thread(name="outsideTemp", target=getOutdoor, args=(lcd,))
         threads.append(t)	
         t.start()
-    elif idx == 2:
-        temp = getIndoor()
-        target = tempControl.getTarget()
-        lcd.message("Inside temp: %iF\nSet to:      %iF" % (temp, target))
-
+    elif idx == 4: lcd.message('Welcome to\nRPi Thermostat')
+    elif idx == 5: 
+        if on: lcd.message('Press select to\nturn fan on')
+        else:  lcd.message('Press select to\nturn fan off')
+    elif idx == 6: 
+        if on: lcd.message('Press select to\nturn melter on')
+        else:  lcd.message('Press select to\nturn melter off')
+    elif idx == 7: 
+        if on: lcd.message('Press select to\nturn light on')
+        else:  lcd.message('Press select to\nturn light off')
+    elif idx == 8: 
+        if on: lcd.message('Press select to\nturn hose on')
+        else:  lcd.message('Press select to\nturn hose off')
     else: lcd.message('Top menu level\nerror: choice=%i' % idx)
 
 def setDiagMessage(idx, lcd):
@@ -128,6 +149,10 @@ def main():
     lcd.set_color(1,1,1)
     topUIidx = 1
     secUIidx = 0
+    patioMelterOn = False
+    fanOn = False
+    hoseOn = False
+    outsideLightOn = False
     setTopMessage(1, lcd)
     
     while True:
@@ -139,15 +164,23 @@ def main():
             secUIidx = 0
             topUIidx -= 1
             if topUIidx < 1:
-                topUIidx = 4
-            setTopMessage(topUIidx, lcd)
+                topUIidx = len(UI)
+            if   idx == 5: setTopMessage(topUIidx, lcd, fanOn)
+            elif idx == 6: setTopMessage(topUIidx, lcd, patioMelterOn)
+            elif idx == 7: setTopMessage(topUIidx, lcd, hoseOn)
+            elif idx == 8: setTopMessage(topUIidx, lcd, outsideLightOn)
+            else: setTopMessage(topUIidx, lcd)
             
         if lcd.is_pressed(LCD.RIGHT):
             secUIidx = 0
             topUIidx += 1
-            if topUIidx > 4:
+            if topUIidx > len(UI):
                 topUIidx = 1
-            setTopMessage(topUIidx, lcd)
+            if   idx == 5: setTopMessage(topUIidx, lcd, fanOn)
+            elif idx == 6: setTopMessage(topUIidx, lcd, patioMelterOn)
+            elif idx == 7: setTopMessage(topUIidx, lcd, hoseOn)
+            elif idx == 8: setTopMessage(topUIidx, lcd, outsideLightOn)
+            else: setTopMessage(topUIidx, lcd)
 			
         if lcd.is_pressed(LCD.UP):
             if topUIidx ==2:
@@ -178,9 +211,38 @@ def main():
                 if secUIidx < 0:
                     secUIidx = 1
                 setDiagMessage(secUIidx, lcd)
-
+                
+            if idx == 5: 
+                if fanOn:
+                    callRelay(5, False)
+                    fanOn = False
+                else:
+                    callRelay(5, True)
+                    fanOn = True
+            if idx == 6:
+                if patioMelterOn:
+                    callRelay(6, False)
+                    patioMelterOn = False
+                else:
+                    callRelay(6, True)
+                    patioMelterOn = True
+            if idx == 7: 
+                if hoseOn:
+                    callRelay(7, False)
+                    hoseOn = False
+                else:
+                    callRelay(7, True)
+                    hoseOn = True
+            if idx == 8: 
+                if outsideLightOn:
+                    callRelay(8, False)
+                    outsideLightOn = False
+                else:
+                    callRelay(8, True)
+                    outsideLightOn = True
+            
         if lcd.is_pressed(LCD.SELECT):
-            if topUIidx == 2 and secUIidx == 1:
+            if topUIidx == 4 and secUIidx == 1:
                 lcd.clear()
                 lcd.message("\nrebooting...")
                 restart()

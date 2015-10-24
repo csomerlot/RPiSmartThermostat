@@ -180,7 +180,7 @@ def main():
                 setDiagMessage(secUIidx, lcd)
 
         if lcd.is_pressed(LCD.SELECT):
-            if topUIidx == 2 and secUIidx == 1:
+            if topUIidx == 4 and secUIidx == 1:
                 lcd.clear()
                 lcd.message("\nrebooting...")
                 restart()

@@ -25,7 +25,7 @@ UI = [
         {"patio melter": ['on', 'off']},
         {"outside light": ['on', 'off']},
         {"garden hose": ['on', 'off']}
-    ]
+    ]}
 ]
 
 threads = []

@@ -1,5 +1,10 @@
 from datetime import *
 
+import os
+basepath = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+sys.path.append(basepath + '/libs/Adafruit_Python_DHT')
+import Adafruit_DHT
+
 offset = 0
 base   = 62
 
@@ -15,6 +20,13 @@ schedule = {
         20: base
     }
 }
+
+def getIndoor():
+    sensor = Adafruit_DHT.DHT22
+    pin = 4
+    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+    temperature = temperature * 9/5.0 + 32
+    return temperature
 
 def getDayOfWeek(now):
     if now.date().weekday in [5,6]:  

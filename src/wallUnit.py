@@ -3,11 +3,6 @@
 import sys, os, time, urllib, datetime, socket, sched, threading
 basepath = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 
-##sys.path.append(basepath + '/libs/Adafruit_Python_DHT')
-##import Adafruit_DHT
-##sensor = Adafruit_DHT.DHT22
-##pin = 4
-
 sys.path.append(basepath + '/libs/Adafruit_Python_CharLCD')
 import Adafruit_CharLCD as LCD
 
@@ -25,10 +20,12 @@ UI = [
     {"indoor temp": ['offset up', 'offset down']},
     "outdoor temp",
     {"diagnostics": ['IP', 'reboot']},
-    {"fan": ['on', 'off']},
-    {"patio melter": ['on', 'off']},
-    {"outside light": ['on', 'off']},
-    {"garden hose": ['on', 'off']}
+    {'auxiliaries': [
+        {"fan": ['on', 'off']},
+        {"patio melter": ['on', 'off']},
+        {"outside light": ['on', 'off']},
+        {"garden hose": ['on', 'off']}
+    ]
 ]
 
 threads = []
@@ -38,11 +35,6 @@ topUIidx = 1
 def log(message):
     with file(sys.argv[0]+".log", 'a') as logFile:
         logFile.write("%s: %s\n" % (datetime.datetime.now(), message))
-
-def getIndoor():
-##    humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
-##    temperature = temperature * 9/5.0 + 32
-    return 62
 
 def getOutdoor(lcd):
     global topUIidx
@@ -77,7 +69,7 @@ def setTopMessage(lcd, on=True):
     lcd.clear()
     if   topUIidx == 1: lcd.message(getTime())
     elif topUIidx == 2:
-        temp = getIndoor()
+        temp = tempControl.getIndoor()
         target = tempControl.getTarget()
         lcd.message("Inside temp: %iF\nSet to:      %iF" % (temp, target))
     elif topUIidx == 3:
@@ -85,20 +77,23 @@ def setTopMessage(lcd, on=True):
         t = threading.Thread(name="outsideTemp", target=getOutdoor, args=(lcd,))
         threads.append(t)	
         t.start()
-    elif topUIidx == 4: lcd.message('Welcome to\nRPi Thermostat')
-    elif topUIidx == 5: 
+    elif topUIidx == 4: lcd.message('Press up/down to\nuse Aux. systems')
+    elif topUIidx == 5: lcd.message('Welcome to\nRPi Thermostat')
+
+def setAuxMessage(idx, lcd):
+    if   idx == 0:
         if on: lcd.message('Press select to\nturn fan on')
         else:  lcd.message('Press select to\nturn fan off')
-    elif topUIidx == 6: 
+    elif idx == 6: 
         if on: lcd.message('Press select to\nturn melter on')
         else:  lcd.message('Press select to\nturn melter off')
-    elif topUIidx == 7: 
+    elif idx == 7: 
         if on: lcd.message('Press select to\nturn light on')
         else:  lcd.message('Press select to\nturn light off')
-    elif topUIidx == 8: 
+    elif idx == 8: 
         if on: lcd.message('Press select to\nturn hose on')
         else:  lcd.message('Press select to\nturn hose off')
-    else: lcd.message('Top menu level\nerror: choice=%i' % idx)
+    else: lcd.message('Aux menu level\nerror: choice=%i' % idx)
 
 def setDiagMessage(idx, lcd):
     lcd.clear()
@@ -173,22 +168,14 @@ def main():
             topUIidx -= 1
             if topUIidx < 1:
                 topUIidx = len(UI)
-            if   topUIidx == 5: setTopMessage(lcd, fanOn)
-            elif topUIidx == 6: setTopMessage(lcd, patioMelterOn)
-            elif topUIidx == 7: setTopMessage(lcd, hoseOn)
-            elif topUIidx == 8: setTopMessage(lcd, outsideLightOn)
-            else: setTopMessage(lcd)
+            setTopMessage(lcd)
             
         if lcd.is_pressed(LCD.RIGHT):
             secUIidx = 0
             topUIidx += 1
             if topUIidx > len(UI):
                 topUIidx = 1
-            if   topUIidx == 5: setTopMessage(lcd, fanOn)
-            elif topUIidx == 6: setTopMessage(lcd, patioMelterOn)
-            elif topUIidx == 7: setTopMessage(lcd, hoseOn)
-            elif topUIidx == 8: setTopMessage(lcd, outsideLightOn)
-            else: setTopMessage(lcd)
+            setTopMessage(lcd)
 			
         if lcd.is_pressed(LCD.UP):
             if topUIidx ==2:
@@ -199,6 +186,11 @@ def main():
                 threads.append(t)
                 t.start()
             if topUIidx == 4:
+                secUIidx += 1
+                if secUIidx > 1:
+                    secUIidx = 0
+                setAuxMessage(secUIidx, lcd)
+            if topUIidx == 5:
                 secUIidx += 1
                 if secUIidx > 1:
                     secUIidx = 0
@@ -220,40 +212,42 @@ def main():
                     secUIidx = 1
                 setDiagMessage(secUIidx, lcd)
                 
-            if topUIidx == 5: 
+            
+            
+        if lcd.is_pressed(LCD.SELECT):
+            if topUIidx == 5 and secUIidx == 1:
+                lcd.clear()
+                lcd.message("\nrebooting...")
+                restart()
+              
+            if topUIidx == 4 and secUIidx == 1:
                 if fanOn:
                     callRelay(5, False)
                     fanOn = False
                 else:
                     callRelay(5, True)
                     fanOn = True
-            if topUIidx == 6:
+            if topUIidx == 4 and secUIidx == 2:
                 if patioMelterOn:
                     callRelay(6, False)
                     patioMelterOn = False
                 else:
                     callRelay(6, True)
                     patioMelterOn = True
-            if topUIidx == 7: 
+            if topUIidx == 4 and secUIidx == 3:
                 if hoseOn:
                     callRelay(7, False)
                     hoseOn = False
                 else:
                     callRelay(7, True)
                     hoseOn = True
-            if topUIidx == 8: 
+            if topUIidx == 4 and secUIidx == 4:
                 if outsideLightOn:
                     callRelay(8, False)
                     outsideLightOn = False
                 else:
                     callRelay(8, True)
                     outsideLightOn = True
-            
-        if lcd.is_pressed(LCD.SELECT):
-            if topUIidx == 4 and secUIidx == 1:
-                lcd.clear()
-                lcd.message("\nrebooting...")
-                restart()
 
 if __name__ == '__main__':
     

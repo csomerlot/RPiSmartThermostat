@@ -1,10 +1,6 @@
 #!/usr/bin/python
 
 from datetime import *
-
-import os, sys
-basepath = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-sys.path.append(basepath + '/libs/Adafruit_Python_DHT')
 import Adafruit_DHT
 
 offset = 0

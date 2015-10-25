@@ -69,9 +69,9 @@ def setTopMessage(lcd, on=True):
     lcd.clear()
     if   topUIidx == 1: lcd.message(getTime())
     elif topUIidx == 2:
-        temp = tempControl.getIndoor()
+        temp, humidity = tempControl.getIndoor()
         target = tempControl.getTarget()
-        lcd.message("Inside temp: %iF\nSet to:      %iF" % (temp, target))
+        lcd.message("Inside temp: %iF\nSet to:      %iF" % (int(round(temp,0)), target))
     elif topUIidx == 3:
         lcd.message("Outside temp\n...")
         t = threading.Thread(name="outsideTemp", target=getOutdoor, args=(lcd,))
@@ -80,19 +80,20 @@ def setTopMessage(lcd, on=True):
     elif topUIidx == 4: lcd.message('Press up/down to\nuse Aux. systems')
     elif topUIidx == 5: lcd.message('Welcome to\nRPi Thermostat')
 
-def setAuxMessage(idx, lcd):
+def setAuxMessage(idx, lcd, on):
+    lcd.clear()
     if   idx == 0:
-        if on: lcd.message('Press select to\nturn fan on')
-        else:  lcd.message('Press select to\nturn fan off')
-    elif idx == 6: 
-        if on: lcd.message('Press select to\nturn melter on')
-        else:  lcd.message('Press select to\nturn melter off')
-    elif idx == 7: 
-        if on: lcd.message('Press select to\nturn light on')
-        else:  lcd.message('Press select to\nturn light off')
-    elif idx == 8: 
-        if on: lcd.message('Press select to\nturn hose on')
-        else:  lcd.message('Press select to\nturn hose off')
+        if not on: lcd.message('Press select to\nturn fan on')
+        else:      lcd.message('Press select to\nturn fan off')
+    elif idx == 1: 
+        if not on: lcd.message('Press select to\nturn melter on')
+        else:      lcd.message('Press select to\nturn melter off')
+    elif idx == 2: 
+        if not on: lcd.message('Press select to\nturn light on')
+        else:      lcd.message('Press select to\nturn light off')
+    elif idx == 3: 
+        if not on: lcd.message('Press select to\nturn hose on')
+        else:      lcd.message('Press select to\nturn hose off')
     else: lcd.message('Aux menu level\nerror: choice=%i' % idx)
 
 def setDiagMessage(idx, lcd):
@@ -116,19 +117,13 @@ def setFurnace():
         
     callRelay(3, On)
 
-def setFan():
-    pass
-
-def setHumidifier():
-    pass
-
-def setPatioMelter():
-    pass
-
 def callRelay(idx, On):
     url = r'http://192.168.42.44/relay%i%s' % (idx, {True:'On', False:"Off"}[On])
     log(url)
-    result = urllib.urlopen(url).read()
+    try:
+        result = urllib.urlopen(url).read()
+    except IOError:
+        result = "Remote control unit not responding"
     log(result)
 
 def restart():
@@ -152,10 +147,7 @@ def main():
     lcd = LCD.Adafruit_CharLCDPlate()
     lcd.set_color(1,1,1)
     secUIidx = 0
-    patioMelterOn = False
-    fanOn = False
-    hoseOn = False
-    outsideLightOn = False
+    auxDevices = [False, False, False, False]
     setTopMessage(lcd)
     
     while True:
@@ -187,9 +179,10 @@ def main():
                 t.start()
             if topUIidx == 4:
                 secUIidx += 1
-                if secUIidx > 1:
+                if secUIidx > 3:
                     secUIidx = 0
-                setAuxMessage(secUIidx, lcd)
+                setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
+
             if topUIidx == 5:
                 secUIidx += 1
                 if secUIidx > 1:
@@ -210,9 +203,13 @@ def main():
                 secUIidx -= 1
                 if secUIidx < 0:
                     secUIidx = 1
-                setDiagMessage(secUIidx, lcd)
+                setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
                 
-            
+            if topUIidx == 5:
+                secUIidx -= 1
+                if secUIidx < 0:
+                    secUIidx = 1
+                setDiagMessage(secUIidx, lcd)            
             
         if lcd.is_pressed(LCD.SELECT):
             if topUIidx == 5 and secUIidx == 1:
@@ -220,34 +217,10 @@ def main():
                 lcd.message("\nrebooting...")
                 restart()
               
-            if topUIidx == 4 and secUIidx == 1:
-                if fanOn:
-                    callRelay(5, False)
-                    fanOn = False
-                else:
-                    callRelay(5, True)
-                    fanOn = True
-            if topUIidx == 4 and secUIidx == 2:
-                if patioMelterOn:
-                    callRelay(6, False)
-                    patioMelterOn = False
-                else:
-                    callRelay(6, True)
-                    patioMelterOn = True
-            if topUIidx == 4 and secUIidx == 3:
-                if hoseOn:
-                    callRelay(7, False)
-                    hoseOn = False
-                else:
-                    callRelay(7, True)
-                    hoseOn = True
-            if topUIidx == 4 and secUIidx == 4:
-                if outsideLightOn:
-                    callRelay(8, False)
-                    outsideLightOn = False
-                else:
-                    callRelay(8, True)
-                    outsideLightOn = True
+            if topUIidx == 4:
+                callRelay(secUIidx, auxDevices[secUIidx])
+                auxDevices[secUIidx] = not auxDevices[secUIidx]
+                setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
 
 if __name__ == '__main__':
     

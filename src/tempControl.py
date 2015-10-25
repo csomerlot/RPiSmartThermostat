@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from datetime import *
 
 import os, sys
@@ -26,7 +28,7 @@ def getIndoor():
     pin = 4
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
     temperature = temperature * 9/5.0 + 32
-    return temperature
+    return temperature, humidity
 
 def getDayOfWeek(now):
     if now.date().weekday in [5,6]:  
@@ -69,5 +71,5 @@ def getNextEventTime():
     
 
 if __name__ == '__main__':
-    print schedule
+    print getIndoor()
     

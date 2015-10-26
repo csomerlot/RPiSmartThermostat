@@ -218,7 +218,9 @@ def main():
                 restart()
               
             if topUIidx == 4:
-                callRelay(secUIidx, auxDevices[secUIidx])
+                t = threading.Thread(name="callRelayAux", target=callRelay, args =(secUIidx, auxDevices[secUIidx]))
+                threads.append(t)
+                t.start()
                 auxDevices[secUIidx] = not auxDevices[secUIidx]
                 setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
 

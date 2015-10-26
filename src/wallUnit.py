@@ -108,7 +108,7 @@ def setDiagMessage(idx, lcd):
     
 
 def setFurnace():
-    temp = getIndoor()
+    temp, humidity = tempControl.getIndoor()
     target = tempControl.getTarget()
     if target > temp:
         On = True

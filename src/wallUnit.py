@@ -208,7 +208,7 @@ def main():
             if topUIidx == 5:
                 secUIidx -= 1
                 if secUIidx < 0:
-                    secUIidx = 1
+                    secUIidx = 3
                 setDiagMessage(secUIidx, lcd)            
             
         if lcd.is_pressed(LCD.SELECT):
@@ -218,7 +218,7 @@ def main():
                 restart()
               
             if topUIidx == 4:
-                t = threading.Thread(name="callRelayAux", target=callRelay, args =(secUIidx, auxDevices[secUIidx]))
+                t = threading.Thread(name="callRelayAux", target=callRelay, args =(secUIidx+1, auxDevices[secUIidx]))
                 threads.append(t)
                 t.start()
                 auxDevices[secUIidx] = not auxDevices[secUIidx]

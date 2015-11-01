@@ -2,6 +2,8 @@
 
 import sys, os, time, urllib, datetime, socket, sched, threading
 basepath = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+##from pymongo import MongoClient
+##mongo_client = MongoClient()
 
 sys.path.append(basepath + '/libs/Adafruit_Python_CharLCD')
 import Adafruit_CharLCD as LCD
@@ -30,8 +32,8 @@ UI = [
 
 threads = []
 topUIidx = 1
-##from pymongo import MongoClient
-##mongo_client = MongoClient()
+
+
 def log(message):
     with file(sys.argv[0]+".log", 'a') as logFile:
         logFile.write("%s: %s\n" % (datetime.datetime.now(), message))
@@ -45,8 +47,27 @@ def getOutdoor(lcd):
     temp = int(round(data[u'temperature'], 0))
     if topUIidx == 3:
         lcd.clear()
-        lcd.message("Outside temp\n%i deg F" % temp)    # return data
+        lcd.message("Outside temp\n%i deg F" % temp)    
+        
+        scheduler = sched.scheduler(time.time, time.sleep)
+        scheduler.enterabs(300, 1, getOutdoor, (lcd,))
+        update = threading.Thread(target=scheduler.run)
+        update.start()
 
+def getIndoor(lcd):
+    global topUIidx
+    temp, humidity = tempControl.getIndoor()
+    target = tempControl.getTarget()
+    if topUIidx == 2:
+        lcd.clear()
+        lcd.message("Inside temp: %iF\nSet to:      %iF" % (int(round(temp,0)), target))  
+        
+        scheduler = sched.scheduler(time.time, time.sleep)
+        scheduler.enterabs(300, 1, getIndoor, (lcd,))
+        update = threading.Thread(target=scheduler.run)
+        update.start()
+    
+        
 def getIp():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -69,9 +90,10 @@ def setTopMessage(lcd, on=True):
     lcd.clear()
     if   topUIidx == 1: lcd.message(getTime())
     elif topUIidx == 2:
-        temp, humidity = tempControl.getIndoor()
-        target = tempControl.getTarget()
-        lcd.message("Inside temp: %iF\nSet to:      %iF" % (int(round(temp,0)), target))
+        lcd.message("Inside temp:   \nSet to:      %iF" % (int(round(temp,0)), target))
+        t = threading.Thread(name="insideTemp", target=getIndoor, args=(lcd,))
+        threads.append(t)	
+        t.start()
     elif topUIidx == 3:
         lcd.message("Outside temp\n...")
         t = threading.Thread(name="outsideTemp", target=getOutdoor, args=(lcd,))
@@ -104,9 +126,8 @@ def setDiagMessage(idx, lcd):
         lcd.message("Press select\nto reboot")
 
     else:
-        lcd.message('Menu Error\ntop level choice=%i' % idx)
+        lcd.message('Menu Error\ndiag level choice=%i' % idx)
     
-
 def setFurnace():
     temp, humidity = tempControl.getIndoor()
     target = tempControl.getTarget()
@@ -179,7 +200,7 @@ def main():
                 t.start()
             if topUIidx == 4:
                 secUIidx += 1
-                if secUIidx > 3:
+                if secUIidx > 1:
                     secUIidx = 0
                 setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
 

@@ -49,9 +49,7 @@ def getOutdoor(lcd):
         lcd.clear()
         lcd.message("Outside temp\n%i deg F" % temp)    
         
-        scheduler = sched.scheduler(time.time, time.sleep)
-        scheduler.enterabs(300, 1, getOutdoor, (lcd,))
-        update = threading.Thread(target=scheduler.run)
+        update = threading.Timer(300, getOutdoor, (lcd,))
         update.start()
 
 def getIndoor(lcd):
@@ -62,9 +60,7 @@ def getIndoor(lcd):
         lcd.clear()
         lcd.message("Inside temp: %iF\nSet to:      %iF" % (int(round(temp,0)), target))  
         
-        scheduler = sched.scheduler(time.time, time.sleep)
-        scheduler.enterabs(300, 1, getIndoor, (lcd,))
-        update = threading.Thread(target=scheduler.run)
+        update = threading.Timer(300, getIndoor, (lcd,))
         update.start()
     
         
@@ -76,21 +72,25 @@ def getIp():
     except:
         return "unknown"
 
-def getTime():
-    try:
-        d = datetime.datetime.now()
-        return d.strftime("%m/%d %I:%M %p\n%A")
-    except:
-        return "error with date"
+def getTime(lcd):
+    d = datetime.datetime.now()
+    if topUIidx == 1:
+        lcd.clear()
+        lcd.message(d.strftime("%m/%d %I:%M %p\n%A"))
+
+        update = threading.Timer(60, getTime, (lcd,))
+        update.start()
 
 def setTopMessage(lcd, on=True):
     global topUIidx
     global threads
 
     lcd.clear()
-    if   topUIidx == 1: lcd.message(getTime())
+    if   topUIidx == 1: 
+        t = threading.Thread(name="time", target=getTime, args=(lcd,))
+        t.start()
     elif topUIidx == 2:
-        lcd.message("Inside temp:   \nSet to:      %iF" % (int(round(temp,0)), target))
+        lcd.message("Inside temp:\nSet to:")
         t = threading.Thread(name="insideTemp", target=getIndoor, args=(lcd,))
         threads.append(t)	
         t.start()

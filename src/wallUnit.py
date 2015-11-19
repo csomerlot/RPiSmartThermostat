@@ -2,36 +2,36 @@
 
 import sys, os, time, urllib, datetime, socket, sched, threading
 basepath = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-##from pymongo import MongoClient
-##mongo_client = MongoClient()
 
 sys.path.append(basepath + '/libs/Adafruit_Python_CharLCD')
 import Adafruit_CharLCD as LCD
 
 sys.path.append(basepath + '/libs/requests')
 sys.path.append(basepath + '/libs/python-forecast.io')
+sys.path.append(basepath + '/libs/io-client-python')
 import requests
 from requests.packages import urllib3
 urllib3.disable_warnings()
 import forecastio
-
+import Adafruit_IO
 import tempControl
 
-UI = [
-    "time",
-    {"indoor temp": ['offset up', 'offset down']},
-    "outdoor temp",
-    {"diagnostics": ['IP', 'reboot']},
-    {'auxiliaries': [
-        {"fan": ['on', 'off']},
-        {"patio melter": ['on', 'off']},
-        {"outside light": ['on', 'off']},
-        {"garden hose": ['on', 'off']}
-    ]}
-]
+UI = (
+    ("time",),
+    ("indoor temp", ('offset up', 'offset down')),
+    ("outdoor temp",),
+    ("diagnostics", ('IP', 'reboot')),
+    ('auxiliaries', (
+        ("fan", ('on', 'off')),
+        ("patio melter", ('on', 'off')),
+        ("outside light", ('on', 'off')),
+        ("garden hose", ('on', 'off'))
+    ))
+)
+
 
 threads = []
-topUIidx = 1
+topUIidx = 0
 
 
 def log(message):
@@ -62,7 +62,6 @@ def getIndoor(lcd):
         
         update = threading.Timer(300, getIndoor, (lcd,))
         update.start()
-    
         
 def getIp():
     try:
@@ -172,10 +171,7 @@ def main():
     setTopMessage(lcd)
     
     while True:
-        
-##        mongo_client['HomeControl'].temperature.drop ()
-##        mongo_client['HomeControl']['temperature'].insert(temperature)
-                
+          
         if lcd.is_pressed(LCD.LEFT):
             secUIidx = 0
             topUIidx -= 1
@@ -191,28 +187,26 @@ def main():
             setTopMessage(lcd)
 			
         if lcd.is_pressed(LCD.UP):
-            if topUIidx ==2:
+            if UI[topUIidx][0] == 'indoor temp': 
                 tempControl.offset += 1
                     
                 setTopMessage(lcd)
                 t = threading.Thread(name="furnaceUp", target=setFurnace)
                 threads.append(t)
                 t.start()
-            if topUIidx == 4:
+            if UI[topUIidx][0] == 'auxiliaries':
                 secUIidx += 1
-                if secUIidx > 1:
+                if secUIidx > len(UI[topUIidx][0][1]):
                     secUIidx = 0
                 setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
-
-            if topUIidx == 5:
+            if UI[topUIidx][0] == "diagnostics":
                 secUIidx += 1
-                if secUIidx > 1:
+                if secUIidx > len(UI[topUIidx][0][1]):
                     secUIidx = 0
                 setDiagMessage(secUIidx, lcd)
                 
-            
         if lcd.is_pressed(LCD.DOWN):
-            if topUIidx ==2:
+            if UI[topUIidx][0] == 'indoor temp':
                 tempControl.offset -= 1
                     
                 setTopMessage(lcd)
@@ -220,25 +214,25 @@ def main():
                 threads.append(t)
                 t.start()
                 
-            if topUIidx == 4:
+            if UI[topUIidx][0] == 'auxiliaries':
                 secUIidx -= 1
                 if secUIidx < 0:
-                    secUIidx = 1
+                    secUIidx = len(UI[topUIidx][0][1])
                 setAuxMessage(secUIidx, lcd, auxDevices[secUIidx])
                 
-            if topUIidx == 5:
+            if UI[topUIidx][0] == "diagnostics":
                 secUIidx -= 1
                 if secUIidx < 0:
-                    secUIidx = 3
+                    secUIidx = len(UI[topUIidx][0][1])
                 setDiagMessage(secUIidx, lcd)            
             
         if lcd.is_pressed(LCD.SELECT):
-            if topUIidx == 5 and secUIidx == 1:
+            if UI[topUIidx][0] == "diagnostics" and UI[topUIidx][secUIidx] == 'reboot':
                 lcd.clear()
                 lcd.message("\nrebooting...")
                 restart()
               
-            if topUIidx == 4:
+            if UI[topUIidx][0] == 'auxiliaries':
                 t = threading.Thread(name="callRelayAux", target=callRelay, args =(secUIidx+1, auxDevices[secUIidx]))
                 threads.append(t)
                 t.start()

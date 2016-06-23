@@ -25,6 +25,13 @@ def getIndoor():
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
     temperature = temperature * 9/5.0 + 32
     return temperature, humidity
+    
+def getOutdoor():
+    api_key = "e7c48fe5a0555a4792c51c1c6df2064c"
+    lat, lng = 42.8543818,-76.1192197
+    forecast = forecastio.load_forecast(api_key, lat, lng)
+    data = forecast.currently().d
+    return int(round(data[u'temperature'], 0))
 
 def getDayOfWeek(now):
     if now.date().weekday in [5,6]:  

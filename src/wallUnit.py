@@ -40,11 +40,8 @@ def log(message):
 
 def getOutdoor(lcd):
     global topUIidx
-    api_key = "e7c48fe5a0555a4792c51c1c6df2064c"
-    lat, lng = 42.8543818,-76.1192197
-    forecast = forecastio.load_forecast(api_key, lat, lng)
-    data = forecast.currently().d
-    temp = int(round(data[u'temperature'], 0))
+    
+    temp = tempControl.getOutdoor()
     if topUIidx == 3:
         lcd.clear()
         lcd.message("Outside temp\n%i deg F" % temp)    

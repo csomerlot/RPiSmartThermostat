@@ -34,9 +34,9 @@ class Notebook:
         # This forces the widget to redraw itself.
         # notebook.queue_draw_area(0,0,-1,-1)
 
-    # def delete(self, widget, event=None):
-        # gtk.main_quit()
-        # return False
+    def delete(self, widget, event=None):
+        gtk.main_quit()
+        return False
 
     def __init__(self):
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -48,85 +48,50 @@ class Notebook:
 
         ## Create a new notebook, place the position of the tabs
         notebook = gtk.Notebook()
-        notebook.set_tab_pos(gtk.POS_TOP)
+        notebook.set_tab_pos(gtk.POS_LEFT)
         table.attach(notebook, 0,6,0,1)
         notebook.show()
         self.show_tabs = True
         self.show_border = True
 
-        
-        
         ## Temperature
         frame = gtk.Frame('Temperature')
         frame.set_border_width(10)
         frame.set_size_request(100, 75)
         frame.show()
-        
         ## Add a temp reading for each room
-
-        label = gtk.Label("Indoor Temperatures")
-        frame.add(label)
-        label.show()
         notebook.append_page(frame, gtk.Label('Temps'))
         
-        
-        
         ## Water
-        frame = gtk.Frame('Water')
+        frame = gtk.Frame('Household Water Usage')
         frame.set_border_width(10)
         frame.set_size_request(100, 75)
         frame.show()
-        
         ## add a graph of water usage, well depth, irrigation usage
-
-        label = gtk.Label("Water Usage")
-        frame.add(label)
-        label.show()
         notebook.append_page(frame, gtk.Label('Water'))
         
-        
-        
         ## Electricity
-        frame = gtk.Frame('Electricity')
+        frame = gtk.Frame('Household Electricity Usage')
         frame.set_border_width(10)
         frame.set_size_request(100, 75)
         frame.show()
-        
         ## Add graph of usage by appliance (NILM)
-
-        label = gtk.Label("Electricity Usage")
-        frame.add(label)
-        label.show()
         notebook.append_page(frame, gtk.Label('Electricity'))
-        
-        
         
         ## Controls
         frame = gtk.Frame('Controls')
         frame.set_border_width(10)
         frame.set_size_request(100, 75)
         frame.show()
-        
         ## Add check boxes to set on/off status of appliances, heat, fans, irrigation, patio melter, door lock, etc.
-
-        label = gtk.Label("Controls")
-        frame.add(label)
-        label.show()
         notebook.append_page(frame, gtk.Label('Controls'))
-        
-                
         
         ## Video
         frame = gtk.Frame('Video')
         frame.set_border_width(10)
         frame.set_size_request(100, 75)
         frame.show()
-        
         ## Add stills from various webcams?
-
-        label = gtk.Label("Video")
-        frame.add(label)
-        label.show()
         notebook.append_page(frame, gtk.Label('Video'))
       
         ##Now let's add a page to a specific spot

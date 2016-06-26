@@ -8,31 +8,7 @@ pygtk.require('2.0')
 import gtk
 
 class Notebook:
-    # This method rotates the position of the tabs
-    # def rotate_book(self, button, notebook):
-        # notebook.set_tab_pos((notebook.get_tab_pos()+1) %4)
 
-    # Add/Remove the page tabs and the borders
-    # def tabsborder_book(self, button, notebook):
-        # tval = False
-        # bval = False
-        # if self.show_tabs == False:
-	    # tval = True 
-        # if self.show_border == False:
-	    # bval = True
-
-        # notebook.set_show_tabs(tval)
-        # self.show_tabs = tval
-        # notebook.set_show_border(bval)
-        # self.show_border = bval
-
-    # Remove a page from the notebook
-    # def remove_book(self, button, notebook):
-        # page = notebook.get_current_page()
-        # notebook.remove_page(page)
-        # Need to refresh the widget -- 
-        # This forces the widget to redraw itself.
-        # notebook.queue_draw_area(0,0,-1,-1)
 
     def delete(self, widget, event=None):
         print('Closed')
@@ -51,6 +27,9 @@ class Notebook:
         label.set_use_markup(gtk.TRUE)
         label.set_markup('<span size="14000">%s</span>'%text)
         return label
+        
+    def callback(self, widget, data=None):
+        print "%s was toggled %s" % (data, ("OFF", "ON")[widget.get_active()])
 
     def __init__(self):
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -84,73 +63,29 @@ class Notebook:
         notebook.append_page(frame, self.makeLabel('Electricity'))
         
         ## Controls
+        devices = [['Furnace', "Patio", "Watering"], ["Fans", "Lights", "Door"]]
         frame = self.makeFrame('Controls')
+        spacing = 1
+        controlTable = gtk.Table(len(devices),len(devices[0]),True)
+        controlTable.set_row_spacings(spacing)
+        controlTable.set_col_spacings(spacing)
+        frame.add(controlTable)
+        for r in range(len(devices)):
+            for c in range(len(devices[0])):
+                button = gtk.ToggleButton(devices[r][c])
+                button.connect("toggled", self.callback, devices[r][c])
+                controlTable.attach(button,c,c+1, r,r+1)
+                button.show()
+        controlTable.show()
         ## Add check boxes to set on/off status of appliances, heat, fans, irrigation, patio melter, door lock, etc.
         notebook.append_page(frame, self.makeLabel('Controls'))
         
         ## Video
-        frame = self.makeFrame('Viedo')
+        frame = self.makeFrame('Video')
         ## Add stills from various webcams?
         notebook.append_page(frame, self.makeLabel('Video'))
       
-        ##Now let's add a page to a specific spot
-        # checkbutton = gtk.CheckButton("Check me please!")
-        # checkbutton.set_size_request(100, 75)
-        # checkbutton.show ()
 
-        # label = gtk.Label("Add page")
-        # notebook.insert_page(checkbutton, label, 2)
-
-        ##Now finally let's prepend pages to the notebook
-        # for i in range(5):
-            # bufferf = "Prepend Frame %d" % (i+1)
-            # bufferl = "PPage %d" % (i+1)
-
-            # frame = gtk.Frame(bufferf)
-            # frame.set_border_width(10)
-            # frame.set_size_request(100, 75)
-            # frame.show()
-
-            # label = gtk.Label(bufferf)
-            # frame.add(label)
-            # label.show()
-
-            # label = gtk.Label(bufferl)
-            # notebook.prepend_page(frame, label)
-    
-        ## Set what page to start at (page 4)
-        # notebook.set_current_page(0)
-
-        ## Create a bunch of buttons
-        # button = gtk.Button("close")
-        # button.connect("clicked", self.delete)
-        # table.attach(button, 0,1,1,2)
-        # button.show()
-
-        # button = gtk.Button("next page")
-        # button.connect("clicked", lambda w: notebook.next_page())
-        # table.attach(button, 1,2,1,2)
-        # button.show()
-
-        # button = gtk.Button("prev page")
-        # button.connect("clicked", lambda w: notebook.prev_page())
-        # table.attach(button, 2,3,1,2)
-        # button.show()
-
-        # button = gtk.Button("tab position")
-        # button.connect("clicked", self.rotate_book, notebook)
-        # table.attach(button, 3,4,1,2)
-        # button.show()
-
-        # button = gtk.Button("tabs/border on/off")
-        # button.connect("clicked", self.tabsborder_book, notebook)
-        # table.attach(button, 4,5,1,2)
-        # button.show()
-
-        # button = gtk.Button("remove page")
-        # button.connect("clicked", self.remove_book, notebook)
-        # table.attach(button, 5,6,1,2)
-        # button.show()
 
         table.show()
         window.show()

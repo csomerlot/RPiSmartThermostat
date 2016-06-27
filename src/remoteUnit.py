@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-## example notebook.py
-## from http://www.pygtk.org/pygtk2tutorial/sec-Notebooks.html
-
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -65,8 +62,8 @@ class Notebook:
         ## Controls
         devices = [['Furnace', "Patio", "Watering"], ["Fans", "Lights", "Door"]]
         frame = self.makeFrame('Controls')
-        spacing = 1
-        controlTable = gtk.Table(len(devices),len(devices[0]),True)
+        spacing = 5
+        controlTable = gtk.Table(len(devices)+2,len(devices[0])+2,True)
         controlTable.set_row_spacings(spacing)
         controlTable.set_col_spacings(spacing)
         frame.add(controlTable)
@@ -74,7 +71,7 @@ class Notebook:
             for c in range(len(devices[0])):
                 button = gtk.ToggleButton(devices[r][c])
                 button.connect("toggled", self.callback, devices[r][c])
-                controlTable.attach(button,c,c+1, r,r+1)
+                controlTable.attach(button,c+1,c+2, r+1,r+2)
                 button.show()
         controlTable.show()
         ## Add check boxes to set on/off status of appliances, heat, fans, irrigation, patio melter, door lock, etc.
@@ -84,8 +81,6 @@ class Notebook:
         frame = self.makeFrame('Video')
         ## Add stills from various webcams?
         notebook.append_page(frame, self.makeLabel('Video'))
-      
-
 
         table.show()
         window.show()

@@ -40,7 +40,7 @@ class NotebookExample:
 
     def __init__(self):
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        window.connect("delete_event", self.delete)
+##        window.connect("delete_event", self.delete)
         window.set_border_width(10)
 
         table = gtk.Table(3,6,False)
@@ -55,9 +55,9 @@ class NotebookExample:
         self.show_border = True
 
         ## Let's append a bunch of pages to the notebook
-        for i in ['Furnace', 'Water', 'Propane', 'Electricity', "Irrigation", "Patio"]):
+        for i in ['Furnace', 'Water', 'Propane', 'Electricity', "Irrigation", "Patio"]:
             
-            frame = gtk.Frame(bufferf)
+            frame = gtk.Frame(i)
             frame.set_border_width(10)
             frame.set_size_request(100, 75)
             frame.show()
